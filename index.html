@@ -565,7 +565,7 @@
                 </div>
                 <div class="card-inner">
                     <div class="card-name">Fatima</div>
-                    <div class="card-message">To my favorite person ever,<br>Happy Valentine's Day!<br><br>Here's to many more 🥳</div>
+                    <div class="card-message">To my favorite person ever,<br>Happy Valentine's Day<br><br>Here's to many more 🥳</div>
                     <div class="card-heart">♥</div>
                 </div>
             </div>
@@ -596,99 +596,32 @@
             <svg viewBox="0 0 30 30"><path d="M0,30 L0,10 Q0,0 10,0 L30,0 L30,5 L10,5 Q5,5 5,10 L5,30 Z"/></svg>
         </div>
         <div class="expanded-name">Fatima</div>
-        <div class="expanded-message">To my favorite person ever,<br>Happy Valentine's Day!<br><br>Here's to many more 🥳</div>
+        <div class="expanded-message">To my favorite person ever,<br>Happy Valentine's Day<br><br>Here's to many more 🥳</div>
         <div class="expanded-heart">♥</div>
     </div>
 
     <button class="music-toggle" id="musicToggle" title="Toggle music">🎵</button>
 
     <script>
-        // Audio context for background music
-        let audioContext;
+        // Audio for background music
+        const audio = new Audio('White_Dress.mp3');
+        audio.loop = true;
+        audio.volume = 0.5;
         let isPlaying = false;
-        let oscillators = [];
-        let gainNode;
-
-        function createRomanticAmbience() {
-            if (audioContext) return;
-            
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            gainNode = audioContext.createGain();
-            gainNode.gain.value = 0.08;
-            gainNode.connect(audioContext.destination);
-
-            // Create a gentle, romantic chord progression
-            const chords = [
-                [261.63, 329.63, 392.00], // C major
-                [293.66, 369.99, 440.00], // D minor  
-                [349.23, 440.00, 523.25], // F major
-                [392.00, 493.88, 587.33], // G major
-            ];
-
-            let chordIndex = 0;
-
-            function playChord() {
-                // Fade out existing oscillators
-                oscillators.forEach(osc => {
-                    try {
-                        osc.stop(audioContext.currentTime + 0.5);
-                    } catch(e) {}
-                });
-                oscillators = [];
-
-                if (!isPlaying) return;
-
-                const chord = chords[chordIndex];
-                chord.forEach(freq => {
-                    const osc = audioContext.createOscillator();
-                    const oscGain = audioContext.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    
-                    oscGain.gain.value = 0;
-                    oscGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.5);
-                    oscGain.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 2.5);
-                    oscGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 3.5);
-                    
-                    osc.connect(oscGain);
-                    oscGain.connect(gainNode);
-                    
-                    osc.start();
-                    oscillators.push(osc);
-                });
-
-                chordIndex = (chordIndex + 1) % chords.length;
-                
-                if (isPlaying) {
-                    setTimeout(playChord, 3500);
-                }
-            }
-
-            isPlaying = true;
-            playChord();
-        }
 
         function toggleMusic() {
             const btn = document.getElementById('musicToggle');
             
-            if (!audioContext) {
-                createRomanticAmbience();
+            if (!isPlaying) {
+                audio.play();
+                isPlaying = true;
                 btn.classList.add('playing');
                 btn.textContent = '🎵';
-            } else if (isPlaying) {
+            } else {
+                audio.pause();
                 isPlaying = false;
-                oscillators.forEach(osc => {
-                    try { osc.stop(); } catch(e) {}
-                });
-                oscillators = [];
                 btn.classList.remove('playing');
                 btn.textContent = '🔇';
-            } else {
-                isPlaying = true;
-                createRomanticAmbience();
-                btn.classList.add('playing');
-                btn.textContent = '🎵';
             }
         }
 
@@ -745,7 +678,7 @@
             clickPrompt.classList.add('hidden');
             
             // Start music on first interaction
-            if (!audioContext) {
+            if (!isPlaying) {
                 toggleMusic();
             }
 
